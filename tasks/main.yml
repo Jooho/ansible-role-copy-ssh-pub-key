@@ -24,7 +24,7 @@
        - "{{groups['all_nodes']}}"
 
    - name: For each host, ssh-copy-id my ssh public keys to the host
-     shell: "sshpass -p {{base_image.pw}} ssh-copy-id -o StrictHostKeyChecking=no -i {{ssh_public_key}} {{base_image.id}}@{{item}}; sleep 1"
+     shell: "sshpass -p {{target_vm.pw}} ssh-copy-id -o StrictHostKeyChecking=no -i {{ssh_public_key}} {{target_vm.id}}@{{item}}; sleep 1"
      with_items:
        - "{{groups['all_nodes']}}"
   when: groups['all_nodes'] is defined and ssh_id_copy_target == 'cluster'
@@ -41,7 +41,7 @@
        - "{{groups['new_nodes']}}"
 
    - name: For each host, ssh-copy-id my ssh public keys to the host
-     shell: "sshpass -p {{base_image.pw}} ssh-copy-id -o StrictHostKeyChecking=no -i {{ssh_public_key}} {{base_image.id}}@{{item}}; sleep 1"
+     shell: "sshpass -p {{target_vm.pw}} ssh-copy-id -o StrictHostKeyChecking=no -i {{ssh_public_key}} {{target_vm.id}}@{{item}}; sleep 1"
      with_items:
        - "{{groups['new_nodes']}}"
   when: ssh_id_copy_target == 'new_nodes'
@@ -56,6 +56,6 @@
        regexp: "{{ssh_id_copy_target}}"
 
    - name: For each host, ssh-copy-id my ssh public keys to the host
-     shell: "sshpass -p {{base_image.pw}} ssh-copy-id -o StrictHostKeyChecking=no -i {{ssh_public_key}} {{base_image.id}}@{{ssh_id_copy_target}}; sleep 1"
+     shell: "sshpass -p {{target_vm.pw}} ssh-copy-id -o StrictHostKeyChecking=no -i {{ssh_public_key}} {{target_vm.id}}@{{ssh_id_copy_target}}; sleep 1"
   when: ssh_id_copy_target != 'cluster' and ssh_id_copy_target != 'new_nodes'
 
