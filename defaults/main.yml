@@ -1,0 +1,9 @@
+---
+# defaults file for ansible-role-ocp-ssh-id-copy
+base_image:
+  id: "{{lookup('env', 'BASE_IMAGE_ID')}}"
+  pw: "{{lookup('env', 'BASE_IMAGE_PW')}}"
+
+
+ssh_public_key: "{{lookup('env', 'SSH_PUBLIC_KEY')}}"
+ssh_id_copy_target: cluster

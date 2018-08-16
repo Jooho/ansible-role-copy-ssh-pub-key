@@ -1,0 +1,5 @@
+[all]
+ansible-role-ocp-ssh-id-copy ansible_host=127.0.0.1 ansible_port=2222 ansible_ssh_private_key_file="/home/jooho/RHB/dev/git/mine/ansible/ansible-roles/ansible-role-ocp-ssh-id-copy/.vagrant/machines/ansible-role-ocp-ssh-id-copy/virtualbox/private_key" ansible_user=vagrant
+
+[group1]
+ansible-role-ocp-ssh-id-copy
