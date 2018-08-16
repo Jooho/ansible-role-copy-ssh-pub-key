@@ -1,4 +1,5 @@
 galaxy_info:
+  role_name: ocp-ssh-id-copy
   author: Jooho Lee
   description: This role help copy ssh key to nodes for using ansible connection.
                Basically, this role will be used for ocp installation.
