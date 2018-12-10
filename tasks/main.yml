@@ -1,19 +1,36 @@
 ---
 #Copy Public Key
 
-- name: Set dummy groups for single node copy
+- name: Fail if requirement package does not exist
+  command: rpm -q sshpass
+  register: sshpass_pkg_exist
+  failed_when: sshpass_pkg_exist.rc == 1
+  
+- name: Check params(can use only 1 params - target_vm, target_vms)
+  failed:
+    - "You can use only one of these params: target_vm, target_vms"
+  when: target_vm is defined and target_vms is defined 
+        
+- name: Check if SSH public key exist
+  stat:
+    path: "{{ ssh_public_key }}"
+  register: ssh_public_key_exist
+  failed_when: not ssh_public_key_exist.stat.exists 
+
+- name: Copy SSH public key to target_vm
   block:
-     - add_host:
-         name: dummy
-         groups: all_nodes
+   - name: Delete hosts from known_hosts
+     lineinfile:
+       path: ~/.ssh/known_hosts
+       state: absent
+       regexp: "{{ target_vm }}"
+     
+   - name: Copy SSH public key to target_vm
+     shell: "sshpass -p {{target_vm_pw}} ssh-copy-id -o StrictHostKeyChecking=no -i {{ssh_public_key}} {{target_vm_id}}@{{target_vm}}; sleep 1"
+  delegate_to: localhost 
+  when: target_vm is defined 
 
-     - add_host:
-         name: dummy
-         groups: new_nodes
-  when: ssh_id_copy_target != 'cluster' and ssh_id_copy_target != 'new_nodes'
-
-# Cluster Installation
-- name: Set up SSH public key for all nodes(Delete meta infor from known_host and add it)
+- name: Copy SSH public key to target_vms
   block:
    - name: Delete hosts from known_hosts
      lineinfile:
@@ -21,41 +38,13 @@
        state: absent
        regexp: "{{item}}"
      with_items:
-       - "{{groups['all_nodes']}}"
+       - "{{ target_vms }}"
 
-   - name: For each host, ssh-copy-id my ssh public keys to the host
-     shell: "sshpass -p {{target_vm.pw}} ssh-copy-id -o StrictHostKeyChecking=no -i {{ssh_public_key}} {{target_vm.id}}@{{item}}; sleep 1"
+   - name: Copy SSH public key to target_vms
+     shell: "sshpass -p {{target_vm_pw}} ssh-copy-id -o StrictHostKeyChecking=no -i {{ssh_public_key}} {{target_vm_id}}@{{item}}; sleep 1"
      with_items:
-       - "{{groups['all_nodes']}}"
-  when: groups['all_nodes'] is defined and ssh_id_copy_target == 'cluster'
+     - "{{ target_vms }}"  
+  delegate_to: localhost
+  when: target_vms is defined 
 
-# Scaling - For New Nodes
-- name: Set up SSH public for a new node(Delete meta infor from known_host and add it)
-  block:
-   - name: Delete hosts from known_hosts
-     lineinfile:
-       path: ~/.ssh/known_hosts
-       state: absent
-       regexp: "{{item}}"
-     with_items:
-       - "{{groups['new_nodes']}}"
-
-   - name: For each host, ssh-copy-id my ssh public keys to the host
-     shell: "sshpass -p {{target_vm.pw}} ssh-copy-id -o StrictHostKeyChecking=no -i {{ssh_public_key}} {{target_vm.id}}@{{item}}; sleep 1"
-     with_items:
-       - "{{groups['new_nodes']}}"
-  when: ssh_id_copy_target == 'new_nodes'
-
-# Single node
-- name: Set up SSH public for a new node(Delete meta infor from known_host and add it)
-  block:
-   - name: Delete hosts from known_hosts
-     lineinfile:
-       path: ~/.ssh/known_hosts
-       state: absent
-       regexp: "{{ssh_id_copy_target}}"
-
-   - name: For each host, ssh-copy-id my ssh public keys to the host
-     shell: "sshpass -p {{target_vm.pw}} ssh-copy-id -o StrictHostKeyChecking=no -i {{ssh_public_key}} {{target_vm.id}}@{{ssh_id_copy_target}}; sleep 1"
-  when: ssh_id_copy_target != 'cluster' and ssh_id_copy_target != 'new_nodes'
 

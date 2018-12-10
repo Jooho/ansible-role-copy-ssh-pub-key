@@ -1,9 +1,14 @@
 ---
-# defaults file for ansible-role-ocp-ssh-id-copy
-target_vm:
-  id: "test"
-  pw: "test"
+
+# Only 1 param can be specified
+#target_vm: localhost
+
+#target_vms:
+#  - localhost
+#  - host1
 
 
-ssh_public_key: "/root/.ssh/id_rsa.pub"
-ssh_id_copy_target: cluster
+target_vm_id: root
+target_vm_pw: root
+
+ssh_public_key: "~/.ssh/id_rsa.pub"
