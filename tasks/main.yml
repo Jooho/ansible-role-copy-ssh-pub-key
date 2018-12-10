@@ -7,8 +7,8 @@
   failed_when: sshpass_pkg_exist.rc == 1
   
 - name: Check params(can use only 1 params - target_vm, target_vms)
-  failed:
-    - "You can use only one of these params: target_vm, target_vms"
+  fail:
+    msg: "You can use only one of these params: target_vm, target_vms"
   when: target_vm is defined and target_vms is defined 
         
 - name: Check if SSH public key exist
